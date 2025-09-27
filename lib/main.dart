@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'CitasPage.dart';
+import 'bloc/appointment_detail_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options:
-        DefaultFirebaseOptions.currentPlatform, // usa tu firebase_options.dart
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -18,9 +15,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      title: 'Confirmar Cita',
       debugShowCheckedModeBanner: false,
-      home: CitasPage(), // pantalla simple con el botón
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      home: const AppointmentDetailPage(
+        userId: 'user123',
+        appointmentId: 'appointment456',
+      ),
     );
   }
 }
@@ -28,82 +30,48 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  Future<void> _guardarCitas(BuildContext context) async {
-    final citas = [
-      {
-        'paciente': 'Erick Estrella',
-        'motivo': 'Revisión general',
-        'fecha': '2025-09-30',
-      },
-      {
-        'paciente': 'Juan Pérez',
-        'motivo': 'Dolor estomacal',
-        'fecha': '2025-10-01',
-      },
-      {
-        'paciente': 'Sofia Martinez',
-        'motivo': 'Dolor de cabeza',
-        'fecha': '2025-09-02',
-      },
-      {
-        'paciente': 'Blanca Canto',
-        'motivo': 'Chequeo de presión',
-        'fecha': '2025-10-11',
-      },
-      {
-        'paciente': 'Carlos Gómez',
-        'motivo': 'Consulta de nutrición',
-        'fecha': '2025-12-24',
-      },
-      {
-        'paciente': 'Rosa Ramírez',
-        'motivo': 'Dolor de garganta',
-        'fecha': '2025-11-04',
-      },
-      {
-        'paciente': 'Luis Castillo',
-        'motivo': 'Seguimiento de enfermedad crónica',
-        'fecha': '2025-09-23',
-      },
-      {
-        'paciente': 'Carlos Hernández',
-        'motivo': 'Problemas cardíacos',
-        'fecha': '2025-09-19',
-      },
-      {
-        'paciente': 'Raúl Pech',
-        'motivo': 'Problemas musculares',
-        'fecha': '2025-07-28',
-      },
-      {
-        'paciente': 'Abby Sánchez',
-        'motivo': 'Análisis de sangre',
-        'fecha': '2025-10-14',
-      },
-    ];
-
-    final database = FirebaseFirestore.instance.collection('DocApp');
-
-    for (var cita in citas)
-      await database.add({...cita, 'creadoEn': FieldValue.serverTimestamp()});
-
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Se han guardado 10 citas exitosamente.')),
-      );
-    }
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'App de Citas Médicas',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      ), // ThemeData
+      home: const _HomeContent(),
+    ); // MaterialApp
   }
+}
+
+// HomePage sirve como pantalla inicial, con un botón para ir a AppointmentDetailPage
+class _HomeContent extends StatelessWidget {
+  const _HomeContent();
 
   @override
   Widget build(BuildContext context) {
+    // Para simplificar el mini reto, usamos datos de ejemplo
+    const exampleUserId = 'user123';
+    const exampleAppointmentId = 'appointment456';
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Demo Firebase')),
+      appBar: AppBar(title: const Text('Inicio - Citas Médicas')),
       body: Center(
         child: ElevatedButton(
-          onPressed: () => _guardarCitas(context),
-          child: const Text('Guardar cita demo'),
-        ),
-      ),
-    );
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const AppointmentDetailPage(
+                  userId: exampleUserId,
+                  appointmentId: exampleAppointmentId,
+                ),
+              ), // MaterialPageRoute
+            );
+          },
+          child: const Text('Ir a Detalles de Cita'),
+        ), // ElevatedButton
+      ), // Center
+    ); // Scaffold
   }
 }
